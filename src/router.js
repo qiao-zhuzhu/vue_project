@@ -6,26 +6,33 @@ import Home from './components/Home.vue'
 Vue.use(Router)
 
 const router = new Router({
-  routes: [
-    { path: '/', redirect: '/login' },
-    { path: '/login', component: Login },
-    { path: '/home', component: Home }
-  ]
+    routes: [
+        { path: '/', redirect: '/login' },
+        { path: '/login', component: Login },
+        { path: '/home', component: Home }
+    ]
 })
 
-//挂载路由导航守卫,to表示将要访问的路径，from表示从哪里来，next是下一个要做的操作
+//挂载路由导航守卫
 router.beforeEach((to, from, next) => {
-  if (to.path === '/login')
-    return next();
+    // to 表示将要访问的路径
+    // from 表示从哪个路径跳转来
+    // next 是一个函数 表示放行 下一个要做的操作
+    // next（） 放行 next('/login')
+    if (to.path === '/login') {
+        return next();
+    }
 
-  //获取token
-  const tokenStr = window.sessionStorage.getItem('token')
+    //其他路由都需要权限 获取token
+    const tokenStr = window.sessionStorage.getItem('token');
 
-  if (!tokenStr)
-    return next('/login')
-
-  next();
-
+    // 判断token是否存在，如果存在，登录过，直接放行，如果不存在，表示用户没登录，强制用户去登录
+    if (!tokenStr) {
+        return next('/login');
+    } else {
+        return next();
+    }
 })
 
-export default router 
+// 暴露路由对象
+export default router;
