@@ -20,7 +20,7 @@
           active-text-color="#409eff"
           unique-opened
           :collapse="isCollapse"
-          :collapse-transiton="false"
+          :collapse-transition="false"
           router
           :default-active="activePath"
         >
@@ -91,7 +91,7 @@ export default {
       // 判断一下获取列表是否成功
       if (res.meta.status !== 200) return this.$message.error(res.meta.msg)
       // 获取列表成功
-      console.log(res.data)
+      // console.log(res.data)
       // 将请求到的数据保存到menuList
       this.menuList = res.data
     },
