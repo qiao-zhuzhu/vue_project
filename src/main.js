@@ -6,8 +6,10 @@ import './plugins/element.js'
 import './assets/fonts/iconfont.css'
 //导入全局样式
 import './assets/css/global.css'
-//
+//导入axios
 import axios from 'axios'
+//导入组件vue-table-with-tree-grid
+import TreeTable from 'vue-table-with-tree-grid'
 
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
 
@@ -23,6 +25,9 @@ axios.interceptors.request.use(function(config) {
 Vue.prototype.$http = axios
 
 Vue.config.productionTip = false
+
+//将TreeTable组件进行全局注册
+Vue.component("tree-table", TreeTable);
 
 
 new Vue({

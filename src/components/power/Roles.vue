@@ -28,8 +28,7 @@
             >
               <!-- 第一个el-col渲染的是第一季资源 -->
               <el-col :span="5">
-                <el-tag closable
-                      @close="removeRightById(scope.row,item1.id)">{{item1.authName}}</el-tag>
+                <el-tag closable @close="removeRightById(scope.row,item1.id)">{{item1.authName}}</el-tag>
                 <i class="el-icon-caret-right"></i>
               </el-col>
               <!-- 第二个el-col渲染的是二三级权限 -->
@@ -41,8 +40,11 @@
                   :key="item2.id"
                 >
                   <el-col :span="6">
-                    <el-tag type="success" closable
-                      @close="removeRightById(scope.row,item2.id)">{{item2.authName}}</el-tag>
+                    <el-tag
+                      type="success"
+                      closable
+                      @close="removeRightById(scope.row,item2.id)"
+                    >{{item2.authName}}</el-tag>
                     <i class="el-icon-caret-right"></i>
                   </el-col>
                   <el-col :span="18">
@@ -68,7 +70,12 @@
           <template slot-scope="scope">
             <el-button icon="el-icon-edit" type="primary" size="mini">编辑</el-button>
             <el-button icon="el-icon-delete" type="danger" size="mini">删除</el-button>
-            <el-button icon="el-icon-setting" type="warning" size="mini" @click="showSetRightDialog(scope.row)">分配权限</el-button>
+            <el-button
+              icon="el-icon-setting"
+              type="warning"
+              size="mini"
+              @click="showSetRightDialog(scope.row)"
+            >分配权限</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -77,10 +84,18 @@
       <el-dialog
         title="分配权限"
         :visible.sync="setRightDialogVisible"
-        width="50%" @close="setRightDialogClosed"
+        width="50%"
+        @close="setRightDialogClosed"
       >
-        <el-tree :data="rightsList" :props="treeProps" show-checkbox node-key="id" default-expand-all :default-checked-keys="defkeys"></el-tree>
-  
+        <el-tree
+          :data="rightsList"
+          :props="treeProps"
+          show-checkbox
+          node-key="id"
+          default-expand-all
+          :default-checked-keys="defkeys"
+        ></el-tree>
+
         <span slot="footer" class="dialog-footer">
           <el-button @click="setRightDialogVisible = false">取 消</el-button>
           <el-button type="primary" @click="allotRights">确 定</el-button>
@@ -99,12 +114,12 @@ export default {
       setRightDialogVisible: false,
       // 保存树形结构的权限列表
       rightsList: [],
-      treeProps:{
+      treeProps: {
         children: 'children',
         label: 'authName'
       },
       // 所有三级权限的ID，用设置分配权限的默认选中项
-      defkeys:[]
+      defkeys: []
     }
   },
   created() {
@@ -144,41 +159,39 @@ export default {
       if (res.meta.status !== 200) {
         return this.$message.error('删除失败！')
       }
-        this.$message.success('删除成功！')
-        
+      this.$message.success('删除成功！')
+
       row.children = res.data
     },
     // 展示分配权限的对话框
     async showSetRightDialog(node) {
       // 获取树形结构的权限列表
-      const { data: res } = await this.$http.get('rights/tree');
-      if(res.meta.status !==200){
+      const { data: res } = await this.$http.get('rights/tree')
+      if (res.meta.status !== 200) {
         return this.$message.error('获取角色权限数失败')
       }
-      this.rightsList = res.data      
+      this.rightsList = res.data
       // console.log(node);
-      this.getLeafKeys(node,this.defkeys)
-      console.log(this.defkeys);
-      
+      this.getLeafKeys(node, this.defkeys)
+      console.log(this.defkeys)
+
       this.setRightDialogVisible = true
     },
     // 递归
-    getLeafKeys(node,arr){
+    getLeafKeys(node, arr) {
       // 如果当前node节点不包含children属性，则是三级节点
-      if(!node.children){
+      if (!node.children) {
         return arr.push(node.id)
       }
       node.children.forEach(item => {
-          this.getLeafKeys(item,arr)
-      });
+        this.getLeafKeys(item, arr)
+      })
     },
-    setRightDialogClosed(){
-      this.defkeys=[];
+    setRightDialogClosed() {
+      this.defkeys = []
     },
-    allotRights(){
-      const ids =[
-          
-      ]
+    allotRights() {
+      const ids = []
     }
   }
 }
