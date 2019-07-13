@@ -42,7 +42,28 @@
           <!-- 展示动态参数数据的表格 -->
           <el-table :data="manyTableData" border stripe>
             <!-- 展开行 -->
-            <el-table-column type="expand"></el-table-column>
+            <el-table-column type="expand">
+              <template slot-scope="scope">
+                <!-- 循环渲染tag标签 -->
+                <el-tag v-for="(item,i) in scope.row.attr_vals" :key="i" closable @close="handleClose(i,scope.row)">{{item}}</el-tag>
+                <!-- 输入文本框 -->
+                <el-input
+                  class="input-new-tag"
+                  v-if="scope.row.inputVisible"
+                  v-model="scope.row.inputValue"
+                  ref="saveTagInput"
+                  size="small"
+                  @keyup.enter.native="handleInputConfirm(scope.row)"
+                  @blur="handleInputConfirm(scope.row)"
+                ></el-input>
+                <el-button
+                  v-else
+                  class="button-new-tag"
+                  size="small"
+                  @click="showInput(scope.row)"
+                >添加参数</el-button>
+              </template>
+            </el-table-column>
             <!-- 索引列 -->
             <el-table-column type="index"></el-table-column>
             <el-table-column prop="attr_name" label="动态参数"></el-table-column>
@@ -178,7 +199,11 @@ export default {
       //控制修改参数的显示与隐藏
       editDialogVisible: false,
       //
-      editForm: {}
+      editForm: {},
+
+      inputValue: '',
+
+      inputVisible: false
     }
   },
   created() {
@@ -201,7 +226,11 @@ export default {
     async getParamsData() {
       //因为只能跟三级分类去添加动态参数和静态属性
       if (this.selectedKeys.length !== 3) {
+        //
         this.selectedKeys = []
+        //清空表格
+        this.manyTableData=[]
+        this.onlyTableData=[]
         return
       }
       console.log(this.selectedKeys)
@@ -215,7 +244,20 @@ export default {
       if (res.meta.status !== 200) {
         this.$messages.error('获取参数信息失败')
       }
-      console.log(res)
+
+      //将参数信息字符串转换为数组
+      res.data.forEach(item => {
+        if (item.attr_vals.trim() === 0) {
+          item.attr_vals = []
+        } else {
+          item.attr_vals = item.attr_vals.split(' ')
+        }
+        //
+        item.inputVisible = false
+        item.inputValue = ''
+      })
+
+      console.log(res.data)
       // 判断当前是动态参数还是静态属性 根据情况将数据挂载到不同的data中
       if (this.activeName === 'many') {
         this.manyTableData = res.data
@@ -315,7 +357,9 @@ export default {
         return this.$message.info('取消了删除操作')
       }
       //点击确认 真的删除
-      const { data: res } = await this.$http.delete(`categories/${this.cateId}/attributes/${attr_id}`)
+      const { data: res } = await this.$http.delete(
+        `categories/${this.cateId}/attributes/${attr_id}`
+      )
 
       if (res.meta.status !== 200) {
         return this.$message.error('删除失败')
@@ -324,7 +368,45 @@ export default {
       this.$message.success('删除成功')
       //刷新页面
       this.getParamsData()
-    }
+
+      this.editDialogVisible = false
+    },
+    showInput(row) {
+      row.inputVisible = true
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
+    },
+    async handleInputConfirm(row) {
+      if (row.inputValue.trim().length === 0) {
+        row.inputValue = ''
+        row.inputVisible = false
+        return
+      }
+      //假如文本框中有正常内容
+      // 要将用户输入在文本框的内容添加到attr_vals中
+      row.attr_vals.push(row.inputValue.trim());
+      row.inputValue = ''
+      row.inputVisible = false
+      //应该要发送请求 添加参数
+      const { data: res } = await this.$http.put(
+        `categories/${this.cateId}/attributes/${row.attr_id}`,{
+          attr_name:row.attr_name,
+          attr_sel:row.attr_sel,
+          attr_vals:row.attr_vals.join(" ")
+        }
+      )
+
+      if (res.meta.status !== 200) {
+        return this.$message.error('更新参数信息失败')
+      }
+
+      this.$message.success('更新成功')
+    },
+    handleClose(index,row){
+      
+    },
+    saveAttrVals
   },
   computed: {
     //分类id很常用 可以定义计算属性
@@ -356,5 +438,11 @@ export default {
 <style lang="less" scoped>
 .el-col {
   padding: 15px;
+}
+.el-tag {
+  margin: 10px;
+}
+.el-input {
+  width: 100px;
 }
 </style>
