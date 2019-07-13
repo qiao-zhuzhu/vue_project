@@ -57,7 +57,7 @@
                   @blur="handleInputConfirm(scope.row)"
                 ></el-input>
                 <el-button
-                  v-else
+                  v-else      
                   class="button-new-tag"
                   size="small"
                   @click="showInput(scope.row)"
@@ -389,7 +389,18 @@ export default {
       row.inputValue = ''
       row.inputVisible = false
       //应该要发送请求 添加参数
-      const { data: res } = await this.$http.put(
+      this.saveAttrVals(row)
+     
+    },
+    handleClose(index,row){
+
+      row.attr_vals.splice(index,1);
+
+      this.saveAttrVals(row)
+
+    },
+    async saveAttrVals(row){
+       const { data: res } = await this.$http.put(
         `categories/${this.cateId}/attributes/${row.attr_id}`,{
           attr_name:row.attr_name,
           attr_sel:row.attr_sel,
@@ -402,11 +413,7 @@ export default {
       }
 
       this.$message.success('更新成功')
-    },
-    handleClose(index,row){
-      
-    },
-    saveAttrVals
+    }
   },
   computed: {
     //分类id很常用 可以定义计算属性
