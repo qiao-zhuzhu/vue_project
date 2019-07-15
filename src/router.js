@@ -11,6 +11,7 @@ import Params from './components/Goods/Params.vue'
 import List from './components/Goods/List.vue'
 import Add from './components/Goods/Add.vue'
 import Orders from './components/Order/Orders.vue'
+import Report from './components/Report/Report.vue'
 
 Vue.use(Router)
 
@@ -18,7 +19,7 @@ const router = new Router({
     routes: [
         { path: '/', redirect: '/login' },
         { path: '/login', component: Login },
-        { path: '/home', component: Home, redirect: '/welcome', children: [{ path: '/welcome', component: Welcome }, { path: '/users', component: Users }, { path: '/rights', component: Rights }, { path: '/roles', component: Roles }, { path: '/categories', component: Cate }, { path: '/params', component: Params }, { path: '/goods', component: List }, { path: '/goods/add', component: Add }, { path: '/orders', component: Orders }] }
+        { path: '/home', component: Home, redirect: '/welcome', children: [{ path: '/welcome', component: Welcome }, { path: '/users', component: Users }, { path: '/rights', component: Rights }, { path: '/roles', component: Roles }, { path: '/categories', component: Cate }, { path: '/params', component: Params }, { path: '/goods', component: List }, { path: '/goods/add', component: Add }, { path: '/orders', component: Orders }, { path: '/reports', component: Report }] }
     ]
 })
 
