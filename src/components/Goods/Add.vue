@@ -95,13 +95,24 @@
               <el-button size="small" type="primary">点击上传</el-button>
             </el-upload>
           </el-tab-pane>
-          <el-tab-pane label="商品内容" name="4">商品内容</el-tab-pane>
+          <el-tab-pane label="商品内容" name="4">
+            <!-- 富文本编辑器 -->
+            <quill-editor v-model="addForm.goods_introduce"></quill-editor>
+            <!-- 添加商品的按钮 -->
+            <el-button type="primary" @click="addProduct">添加商品</el-button>
+          </el-tab-pane>
         </el-tabs>
       </el-form>
     </el-card>
+
+    <el-dialog title="提示" :visible.sync="previewVisible" width="50%">
+      <img :src="imgPath" alt class="previewImg" />
+    </el-dialog>
   </div>
 </template>
 <script>
+//导入lodash
+import _ from 'lodash'
 export default {
   data() {
     return {
@@ -114,7 +125,9 @@ export default {
         goods_number: 0,
         goods_cat: [],
         //上传图片数组
-        pics: []
+        pics: [],
+        //
+        goods_introduce: ''
       },
       // 添加商品的校验规则
       addFormRules: {
@@ -149,7 +162,11 @@ export default {
       //把令牌保存到这个对象中
       headerObj: {
         Authorization: sessionStorage.getItem('token')
-      }
+      },
+      //控制预览图片弹出窗的显示与隐藏
+      previewVisible: false,
+      // 保存需要预览的图片路径地址
+      imgPath: ''
     }
   },
   created() {
@@ -175,6 +192,14 @@ export default {
       }
     },
     beforeTabLeave(activeName, oldActiveName) {
+      //限制用户必须从一个tab栏去切换到下一个tab栏
+      if (activeName - oldActiveName !== 1 && activeName > oldActiveName) {
+        this.$message.error(
+          '请一步一步的添加商品的步骤操作，不要跳过某些步骤，导致商品信息填写不完整'
+        )
+        return false
+      }
+
       //   在用户从第一页去到别的页面时
       // 需要验证用户是否有正常输入第一页数据
       if (oldActiveName === '0') {
@@ -241,16 +266,20 @@ export default {
       }
     },
     //处理图片预览效果
-    handlePreview() {},
+    handlePreview(file) {
+      console.log(file)
+      this.imgPath = file.response.data.url
+      this.previewVisible = true
+    },
     // 处理移出图片操作
     handleRemove(file) {
       console.log(file)
       //1 获取将要删除的图片的临时路径
       let Path = file.response.data.tem_path
       //2 从pics数组中 找到这个图片对应的索引值
-      let index = this.addForm.pics.findIndex(item =>item.pic === Path);
+      let index = this.addForm.pics.findIndex(item => item.pic === Path)
       //3 调用数组的splice 方法 把图片信息对象 从pics数组中移出
-      this.addForm.pics.splice(index,1);
+      this.addForm.pics.splice(index, 1)
     },
     //监听图片上传成功事件
     handleSuccess(response) {
@@ -263,6 +292,54 @@ export default {
       this.addForm.pics.push(picInfo)
 
       console.log(this.addForm.pics)
+    },
+    //点击添加商品
+    addProduct() {
+      // 校验表单数据是否正确
+      this.$refs.addFormRef.validate(async valid => {
+        if (!valid) return this.$message.error('请输入商品信息，信息有误')
+
+        // 校验成功 添加商品
+        //如果想要将goods_cat从数组转换成字符串
+        // 如果将转换之后的字符串直接重新赋值 给addform里的goods_cat
+        // 直接处理并赋值的形式 级联选择器会报错
+        // 解决方案：将addform深拷贝一个全新的对象出来
+
+        const form = _.cloneDeep(this.addForm)
+
+        form.goods_cat = form.goods_cat.join(',')
+
+        // 处理动态参数
+        this.manyTabData.forEach(item => {
+          this.addForm.attrs.push({
+            attr_id: item.attr_id,
+            attr_value: item.attr_vals.join(' ')
+          })
+        })
+
+        //静态
+        this.onlyTabData.forEach(item => {
+          this.addForm.attrs.push({
+            attr_id: item.attr_id,
+            attr_value: item.attr_vals
+          })
+        })
+
+        form.attrs = this.addForm.attrs
+
+        console.log(form)
+
+        const { data: res } = await this.$http.post(
+          'goods',form)
+
+        if (res.meta.status !== 200) {
+          return this.$message.error('添加商品失败')
+        }
+
+          return this.$message.success('添加商品失败')
+
+          this.$router.push("/goods")
+      })
     }
   },
   computed: {
@@ -278,4 +355,7 @@ export default {
 }
 </script>
 <style lang="less" scoped>
+.previewImg {
+  width: 100%;
+}
 </style>

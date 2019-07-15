@@ -10,6 +10,13 @@ import './assets/css/global.css'
 import axios from 'axios'
 //导入组件vue-table-with-tree-grid
 import TreeTable from 'vue-table-with-tree-grid'
+// 导入富文本编辑器
+import VueQuillEditor from 'vue-quill-editor'
+//导入富文本编辑的样式文件
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+
 
 axios.defaults.baseURL = 'http://127.0.0.1:8888/api/private/v1/'
 
@@ -24,10 +31,14 @@ axios.interceptors.request.use(function(config) {
 
 Vue.prototype.$http = axios
 
+
 Vue.config.productionTip = false
 
 //将TreeTable组件进行全局注册
 Vue.component("tree-table", TreeTable);
+
+Vue.use(VueQuillEditor);
+
 
 //创建过滤器将秒数过滤为年月日，时分秒
 Vue.filter('dateFormat', function(originVal) {
