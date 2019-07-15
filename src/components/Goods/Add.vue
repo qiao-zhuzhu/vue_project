@@ -316,8 +316,7 @@ export default {
             attr_value: item.attr_vals.join(' ')
           })
         })
-
-        //静态
+        
         this.onlyTabData.forEach(item => {
           this.addForm.attrs.push({
             attr_id: item.attr_id,
