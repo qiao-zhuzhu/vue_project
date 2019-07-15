@@ -9,6 +9,7 @@ import Roles from './components/power/Roles.vue'
 import Cate from './components/Goods/Cate.vue'
 import Params from './components/Goods/Params.vue'
 import List from './components/Goods/List.vue'
+import Add from './components/Goods/Add.vue'
 
 Vue.use(Router)
 
@@ -16,7 +17,7 @@ const router = new Router({
     routes: [
         { path: '/', redirect: '/login' },
         { path: '/login', component: Login },
-        { path: '/home', component: Home, redirect: '/welcome', children: [{ path: '/welcome', component: Welcome }, { path: '/users', component: Users }, { path: '/rights', component: Rights }, { path: '/roles', component: Roles }, { path: '/categories', component: Cate }, { path: '/params', component: Params }, { path: '/goods', component: List }] }
+        { path: '/home', component: Home, redirect: '/welcome', children: [{ path: '/welcome', component: Welcome }, { path: '/users', component: Users }, { path: '/rights', component: Rights }, { path: '/roles', component: Roles }, { path: '/categories', component: Cate }, { path: '/params', component: Params }, { path: '/goods', component: List }, { path: '/goods/add', component: Add }] }
     ]
 })
 
